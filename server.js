@@ -6,16 +6,25 @@
 'use strict';
 
 const express = require('express');
+var { graphqlHTTP } = require('express-graphql');
+var { buildSchema } = require('graphql');
 
-// Constants
-const PORT = 3000;
-const HOST = '0.0.0.0';
+var { application } = require('./application');
 
-// App
-const app = express();
-app.get('/', (req, res) => {
-	res.send('Hello remote world!\n');
+const execute = application.createExecution();
+const schema = application.schema;
+
+const server = express();
+
+server.use(
+  '/',
+  graphqlHTTP({
+    schema,
+    customExecuteFn: execute,
+    graphiql: true,
+  })
+);
+
+server.listen(4000, () => {
+  console.log(`🚀 Server ready at http://localhost:4000/`);
 });
-
-app.listen(PORT, HOST);
-console.log(`Running on http://${HOST}:${PORT}`);
